@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EIRS Revenue Calculator</title>
+<style>
+:root{--bg:#f6fbff;--card:#fff;--text:#0b1b2a;--muted:#5b7287;--a:#0ea5e9;--t:#14b8a6;--border:rgba(2,132,199,.12);--r:18px}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:radial-gradient(1000px 500px at 10% -10%,rgba(14,165,233,.15),transparent 60%),radial-gradient(800px 450px at 90% 0,rgba(20,184,166,.14),transparent 55%),var(--bg)}
+.container{max-width:1200px;margin:auto;padding:22px 16px 40px}header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}h1{font-size:20px;margin:0}.subtitle{margin:6px 0 0;color:var(--muted);font-size:13.5px}.pill{padding:9px 12px;border:1px solid var(--border);border-radius:999px;background:#ffffffb8;color:var(--muted);font-size:12.5px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 10px 25px rgba(15,23,42,.08);overflow:hidden}.head{padding:16px;background:linear-gradient(180deg,rgba(14,165,233,.08),transparent);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px}.head h2{font-size:14.5px;margin:0}.body{padding:16px}.controls,.results{display:grid;gap:12px}.control{padding:12px;border-radius:14px;background:linear-gradient(180deg,rgba(14,165,233,.06),#fff);border:1px solid var(--border)}.top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.label{font-size:13px;font-weight:650}.hint{font-size:12px;color:var(--muted);font-weight:500}.value{font-size:13px;font-weight:800;padding:6px 10px;border-radius:999px;background:rgba(14,165,233,.1);white-space:nowrap}input[type=range]{width:100%;accent-color:var(--a);cursor:pointer}.btn{border:1px solid var(--border);background:rgba(14,165,233,.1);padding:9px 12px;border-radius:12px;font-weight:700;cursor:pointer}.gross{padding:16px;border-radius:var(--r);background:linear-gradient(180deg,rgba(20,184,166,.08),#fff);border:1px solid var(--border)}.kicker{color:var(--muted);font-size:13px;font-weight:750}.big{font-size:36px;font-weight:900;margin-top:4px}.sub{color:var(--muted);font-size:12.5px;margin-top:8px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:600px){.metrics{grid-template-columns:1fr}}.metric{padding:14px;border:1px solid var(--border);border-radius:16px}.ml{font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:8px}.mv{font-size:22px;font-weight:900}.formula{margin-top:14px;padding:16px;border:1px solid var(--border);border-radius:var(--r)}pre{white-space:pre-wrap;margin:0;background:rgba(14,165,233,.06);padding:12px;border-radius:12px;font-size:13px;line-height:1.45}.chart{padding:14px;border:1px solid var(--border);border-radius:16px}.barrow{display:grid;grid-template-columns:165px 1fr 100px;gap:10px;align-items:center;margin:10px 0}.track{height:12px;border-radius:20px;background:rgba(2,132,199,.1);overflow:hidden}.fill{height:100%;width:0;border-radius:20px;transition:width .2s}.c{background:linear-gradient(90deg,#0ea5e9,#2563eb)}.m{background:linear-gradient(90deg,#14b8a6,#0ea5e9)}.cost{background:linear-gradient(90deg,#ef4444,#f43f5e)}.amount{text-align:right;font-weight:800;font-size:13px}@media(max-width:520px){.barrow{grid-template-columns:1fr}.amount{text-align:left}}
+.note{color:var(--muted);font-size:12.5px;line-height:1.4;margin-top:10px}.logic{margin-top:14px;padding:14px;border-radius:15px;background:rgba(20,184,166,.07);border:1px solid rgba(20,184,166,.18)}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div><h1>🩺 EIRS Revenue Calculator for Clinic / Optometrist Centers</h1><p class="subtitle">Adjust your clinic assumptions to estimate monthly gross revenue from consultation + EIRS, medication earnings, and EIRS reporting costs.</p></div>
+<div><span class="pill">📅 Monthly projection</span> <span class="pill">⚡ Live sliders</span></div>
+</header>
+<div class="grid">
+<section class="card">
+<div class="head"><h2>🎚️ Adjust Your Clinic Assumptions</h2><button class="btn" id="reset">↩️ Reset</button></div>
+<div class="body"><div class="controls">
+<div class="control"><div class="top"><div class="label">👥 Average Patients Per Day <span class="hint">(patients)</span></div><div class="value" id="vP">10</div></div><input id="p" type="range" min="4" max="150" step="1" value="10"></div>
+<div class="control"><div class="top"><div class="label">🗓️ Working Days Per Month <span class="hint">(days)</span></div><div class="value" id="vD">26</div></div><input id="d" type="range" min="10" max="31" step="1" value="26"></div>
+<div class="control"><div class="top"><div class="label">📈 EIRS Adoption Rate <span class="hint">(%)</span></div><div class="value" id="vA">50%</div></div><input id="a" type="range" min="0" max="100" step="5" value="50"></div>
+<div class="control"><div class="top"><div class="label">💳 Consultation + EIRS Fee <span class="hint">(RM / EIRS patient)</span></div><div class="value" id="vF">RM80</div></div><input id="f" type="range" min="0" max="300" step="5" value="80"></div>
+<div class="control"><div class="top"><div class="label">💊 Medication Earning <span class="hint">(RM / EIRS patient)</span></div><div class="value" id="vM">RM15</div></div><input id="m" type="range" min="0" max="150" step="1" value="15"></div>
+<div class="control"><div class="top"><div class="label">🧾 EIRS Cost Per Report <span class="hint">(RM / report)</span></div><div class="value" id="vC">RM25</div></div><input id="c" type="range" min="0" max="100" step="1" value="25"></div>
+</div><div class="note">💡 Drag any slider. All figures update instantly while you move it.</div></div>
+</section>
+<section class="card">
+<div class="head"><h2>💰 Revenue Projection</h2><span class="pill">🏥 GP / Optometry Center</span></div>
+<div class="body"><div class="results">
+<div class="gross"><div class="kicker">✨ GROSS REVENUE / MONTH</div><div class="big" id="gross">RM0</div><div class="sub">📊 Consultation + EIRS + Medication − EIRS Reporting Cost</div></div>
+<div class="metrics">
+<div class="metric"><div class="ml">👥 Total Patients / Month</div><div class="mv" id="pm">0</div></div>
+<div class="metric"><div class="ml">📄 EIRS Reports / Month</div><div class="mv" id="er">0</div></div>
+<div class="metric"><div class="ml">💳 Consultation + EIRS Revenue</div><div class="mv" id="cr">RM0</div></div>
+<div class="metric"><div class="ml">💊 Medication Revenue</div><div class="mv" id="mr">RM0</div></div>
+<div class="metric"><div class="ml">🧾 EIRS Reporting Cost</div><div class="mv" id="ec">RM0</div></div>
+<div class="metric"><div class="ml">🔎 Gross Calculation Check</div><div class="mv" id="gc">RM0</div></div>
+</div>
+<div class="chart"><strong>📊 Revenue Breakdown — Monthly</strong>
+<div class="barrow"><div>Consultation + EIRS</div><div class="track"><div class="fill c" id="bc"></div></div><div class="amount" id="bac">RM0</div></div>
+<div class="barrow"><div>Medication</div><div class="track"><div class="fill m" id="bm"></div></div><div class="amount" id="bam">RM0</div></div>
+<div class="barrow"><div>Reporting Cost</div><div class="track"><div class="fill cost" id="bco"></div></div><div class="amount" id="baco">RM0</div></div>
+</div>
+<div class="formula"><h3>🧠 How Is This Calculated?</h3><pre>Patients / Month
+= Patients / Day × Working Days
+
+EIRS Reports / Month
+= Patients / Month × EIRS Adoption %
+
+Consultation + EIRS Revenue
+= EIRS Reports / Month × Consultation + EIRS Fee
+
+Medication Revenue
+= Patients / Month × EIRS Adoption % × Medication Earning
+
+EIRS Reporting Cost
+= EIRS Reports / Month × EIRS Cost / Report
+
+Gross Revenue / Month
+= Consultation + EIRS Revenue
++ Medication Revenue
+− EIRS Reporting Cost</pre></div>
+<div class="logic"><strong>💡 Simplified EIRS Revenue Logic</strong><div class="note">Gross Revenue = Patients / Month × EIRS Adoption % × (Consultation + EIRS Fee + Medication Earning − EIRS Cost)</div></div>
+</div></div>
+</section>
+</div>
+</div>
+<script>
+const defaults={p:10,d:26,a:50,f:80,m:15,c:25};
+const $=id=>document.getElementById(id);
+const money=x=>'RM'+Math.round(Number(x)||0).toLocaleString('en-MY');
+const integer=x=>Math.round(Number(x)||0).toLocaleString('en-MY');
+function calculate(){
+ const P=+$('p').value,D=+$('d').value,A=+$('a').value/100,F=+$('f').value,M=+$('m').value,C=+$('c').value;
+ const patientsPerMonth=P*D;
+ const eirsReportsPerMonth=patientsPerMonth*A;
+ const consultationEirsRevenue=eirsReportsPerMonth*F;
+ const medicationRevenue=patientsPerMonth*A*M;
+ const eirsReportingCost=eirsReportsPerMonth*C;
+ const grossRevenue=consultationEirsRevenue+medicationRevenue-eirsReportingCost;
+
+ $('vP').textContent=integer(P);
+ $('vD').textContent=integer(D);
+ $('vA').textContent=Math.round(A*100)+'%';
+ $('vF').textContent=money(F);
+ $('vM').textContent=money(M);
+ $('vC').textContent=money(C);
+
+ $('pm').textContent=integer(patientsPerMonth);
+ $('er').textContent=integer(eirsReportsPerMonth);
+ $('cr').textContent=money(consultationEirsRevenue);
+ $('mr').textContent=money(medicationRevenue);
+ $('ec').textContent=money(eirsReportingCost);
+ $('gross').textContent=money(grossRevenue);
+ $('gc').textContent=money(consultationEirsRevenue+medicationRevenue-eirsReportingCost);
+
+ const max=Math.max(Math.abs(consultationEirsRevenue),Math.abs(medicationRevenue),Math.abs(eirsReportingCost),1);
+ $('bc').style.width=(Math.abs(consultationEirsRevenue)/max*100)+'%';
+ $('bm').style.width=(Math.abs(medicationRevenue)/max*100)+'%';
+ $('bco').style.width=(Math.abs(eirsReportingCost)/max*100)+'%';
+ $('bac').textContent=money(consultationEirsRevenue);
+ $('bam').textContent=money(medicationRevenue);
+ $('baco').textContent=money(eirsReportingCost);
+}
+['p','d','a','f','m','c'].forEach(id=>$(id).addEventListener('input',calculate));
+$('reset').addEventListener('click',()=>{Object.entries(defaults).forEach(([id,v])=>$(id).value=v);calculate()});
+calculate();
+</script>
+</body>
+</html>
